@@ -29,5 +29,37 @@ router.get('/', protect, async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
+// Update a board's title
+router.put('/:id', protect, async (req, res) => {
+  try {
+    const board = await Board.findOneAndUpdate(
+      { _id: req.params.id, owner: req.user.id },
+      { title: req.body.title },
+      { new: true }
+    );
 
+    if (!board) {
+      return res.status(404).json({ message: 'Board not found' });
+    }
+
+    res.status(200).json(board);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Delete a board
+router.delete('/:id', protect, async (req, res) => {
+  try {
+    const board = await Board.findOneAndDelete({ _id: req.params.id, owner: req.user.id });
+
+    if (!board) {
+      return res.status(404).json({ message: 'Board not found' });
+    }
+
+    res.status(200).json({ message: 'Board deleted' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
 module.exports = router;
